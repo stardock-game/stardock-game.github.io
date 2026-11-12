@@ -145,7 +145,7 @@ h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(22px,calc(4
 
 <script>
 'use strict';
-const VERSION = 'v1.20';
+const VERSION = 'v1.21';
 /* ================= constants & settings ================= */
 const W = 800, H = 450, TOP = 36, BOT = H - 10;
 const LS_X = 12, START_X = 50, SAFE_L = 96, SAFE_R = W - 104, ST_X = W - 34;
@@ -2023,11 +2023,10 @@ function frame(now) {
 
 /* ================= overlay ================= */
 const HELP = `<ul>
-<li>Your ship rides down the <b>launch station</b> on the left: your <b>first move</b> (slide strip, ↑ ↓ / W S or the stick) launches it. Then it flies right on its own and you steer <b>up and down</b>.</li>
-<li>Fly <b>nose-first into the green-marked port</b> of the moving station: <b>+1000</b> and an extra mine. Hit it anywhere else and you bounce off. Hold <b style="color:#6ef3ff">BRAKE</b> (← / Shift) to time it. The fuel ring refills.</li>
-<li>New stars <span style="color:#6ef3ff">blink for 5 seconds</span> and are harmless. Then they turn <span style="color:#ffe9a8">solid</span> and deadly, like the ringed planets.</li>
-<li><b style="color:#ff9a9a">MINE</b> (or Space) clears nearby stars after 5 seconds. Be well away by then! Planets are mine-proof. Lose a life with no mines left and you get 3 more.</li>
-<li>Every 10 docks or 3 minutes: next level, a faster rocket and a fresh field. From level 2, planets drift across: skim past one for a gravity slingshot. 3 lives.</li></ul>`
+<li>Your <b>first move</b> (slide strip, ↑ ↓ or stick) launches the ship. It flies right; you steer <b>up and down</b>.</li>
+<li>Dock <b>nose-first in the green port</b>: <b>+1000</b>. Hit it elsewhere and you bounce. <b style="color:#6ef3ff">BRAKE</b> (← / Shift) to time it.</li>
+<li>New stars <span style="color:#6ef3ff">blink 5 s</span> (harmless), then turn <span style="color:#ffe9a8">solid</span> and deadly, like planets.</li>
+<li><b style="color:#ff9a9a">MINE</b> (Space) clears nearby stars after 5 s: get clear! 10 docks or 3 min: next level.</li></ul>`
 
 function showOverlay(kind) {
   ovKind = kind; ov.hidden = false;
