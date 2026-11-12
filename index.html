@@ -153,7 +153,7 @@ h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(22px,calc(4
 
 <script>
 'use strict';
-const VERSION = 'v1.24';
+const VERSION = 'v1.25';
 /* ================= constants & settings ================= */
 const W = 800, H = 450, TOP = 36, BOT = H - 10;
 const LS_X = 12, START_X = 50, SAFE_L = 96, SAFE_R = W - 104, ST_X = W - 34;
@@ -162,7 +162,7 @@ const DOCK_TOL = 8, BRAKE_MAX = 3, VMAX = 230, BLINK = 5, FUSE = 5, BLAST = 54, 
 const DEF = { speed: 60, rate: 0.8, station: 55, style: 'both', step: 15, lvDocks: 10, lvMin: 3, startLv: 1, grav: 1, dmg: 15 };
 const NUMKEYS = ['speed', 'rate', 'station', 'step', 'lvDocks', 'lvMin', 'startLv', 'grav', 'dmg'], STYLES = ['tilt', 'roll', 'both'];
 const S = { ...DEF, god: false };
-let best = 0, bestTrade = 0, tradeLv = 1, testMode = false, soundMode = 'all';
+let best = 0, bestTrade = 0, tradeLv = 1, bank = 0, runStart = 0, testMode = false, soundMode = 'all';
 
 function load() {
   try {
@@ -171,13 +171,14 @@ function load() {
     if (d.best) best = d.best | 0;
     if (d.bestTrade) bestTrade = d.bestTrade | 0;
     if (d.tradeLv) tradeLv = Math.max(1, Math.min(9, d.tradeLv | 0));
+    if (d.bank > 0) bank = Math.floor(d.bank);
     if (d.S) { for (const k of NUMKEYS) if (typeof d.S[k] === 'number') S[k] = d.S[k]; if (STYLES.includes(d.S.style)) S.style = d.S.style; }
     if (d.test) testMode = true;
     if (['all', 'fx', 'mute'].includes(d.sound)) soundMode = d.sound;
   } catch (e) {}
 }
 function save() {
-  const o = { best, bestTrade, tradeLv, test: testMode, sound: soundMode, S: { style: S.style } };
+  const o = { best, bestTrade, tradeLv, bank, test: testMode, sound: soundMode, S: { style: S.style } };
   for (const k of NUMKEYS) o.S[k] = S[k];
   try { localStorage.setItem('stardock.v2', JSON.stringify(o)); } catch (e) {}
 }
@@ -963,7 +964,7 @@ function toMenu() {
 let G = null, trip = null, statsState = '', dbP = null, saving = false, saveAgain = false;
 const r1 = v => Math.round(v * 10) / 10;
 function newStats() {
-  G = { v: 1, game: 'stardock', mode, ver: VERSION, id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), startedAt: new Date().toISOString(), test: testMode,
+  G = { v: 1, game: 'stardock', mode, bank0: runStart, ver: VERSION, id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), startedAt: new Date().toISOString(), test: testMode,
     settings: { speed: S.speed, rate: S.rate, station: S.station, step: S.step, lvDocks: S.lvDocks, lvMin: S.lvMin, style: S.style, grav: S.grav },
     device: { w: innerWidth, h: innerHeight, touch: coarse }, t: 0, score: 0, docks: 0, level: 1, ended: 'playing',
     levels: [], trips: [], samples: [], mines: 0, mineCleared: 0, brake: 0 };
@@ -1056,6 +1057,8 @@ function startGame(demoMode = false, startLv = 0, m) {
   A.init(); A.resume(); A.restartSong();
   fuel = BRAKE_MAX;
   score = 0; lives = 3; mineStock = 3; docks = 0; newBest = false;
+  if (m === 'trade' && !demoMode && !testMode) score = bank; // you carry on with the money from earlier trips
+  runStart = score;
   stars = []; mines = []; blasts = []; parts = []; floats = []; pops = [];
   spawnAcc = 0; stY = H * 0.7; R.y = H / 2;
   demo = demoMode; document.getElementById('app').classList.toggle('demo', demo);
@@ -1256,7 +1259,9 @@ function dock() {
   R.dx0 = R.x; R.dy0 = R.y - endY(e); R.a0 = R.a; R.roll0 = R.roll; R.seated = false;
   // trading: the cargo pays 1000, the repairs come off that (half of it if the hull is below 10%)
   R.repair = trade() ? repairCost() : 0; R.hull0 = hull; if (G && R.repair) G.repairs = (G.repairs || 0) + R.repair;
-  phase = 'dock'; dockT = 0; score += 1000 - R.repair; docks++; levelDocks++; mineStock++; tripEnd('dock'); A.dock(); A.thrust(0); A.brake(0); brakeLevel = 0;
+  phase = 'dock'; dockT = 0; score += 1000 - R.repair; docks++;
+  if (trade() && !testMode) { bank = score; save(); }
+  levelDocks++; mineStock++; tripEnd('dock'); A.dock(); A.thrust(0); A.brake(0); brakeLevel = 0;
 
   updateMineBtn();
 }
@@ -2260,7 +2265,7 @@ const HELP = `<ul>
 <li><b style="color:#ff9a9a">MINE</b> (Space) clears nearby stars after 5 s: get clear! 10 docks or 3 min: next level.</li></ul>`
 
 const TRADE_HELP = `<ul>
-<li>Haul cargo <b>both ways</b>: dock, sell for <b>1000</b> credits, turn round and fly back to the other station.</li>
+<li>Haul cargo <b>both ways</b>: dock, sell for <b>1000</b> credits, turn round and fly back. Your credits are kept from one game to the next.</li>
 <li>Stars don't kill you here: each hit costs <b style="color:#ff8a5c">hull</b> and knocks you off course. A mine blast costs half. Planets still do.</li>
 <li>Docking repairs the hull, at a price: more damage, bigger bill. Below 10% hull, half the fee goes to the yard. Miss the dock and you're <b>lost in space</b>.</li>
 <li>From level 3 the route is <b>twice as long</b> and the view scrolls. Finish a level and your next games start there.</li></ul>`
@@ -2275,16 +2280,17 @@ function showOverlay(kind) {
     ovTitle.textContent = 'STAR DOCK'; ovSub.textContent = 'A SPACE-DISCO REMAKE'; ovBody.innerHTML = HELP; btnPlay.textContent = 'ARCADE';
   } else if (kind === 'brief') {
     ovTitle.textContent = 'TRADING ADVENTURE'; ovSub.textContent = 'CARGO RUNS FOR DEX KOVAC';
-    ovBody.innerHTML = TRADE_HELP + (tradeLv > 1 && !testMode ? `<div class="c" style="margin-top:.4em">Checkpoint: you start at <b style="color:#ffd36e">level ${tradeLv}</b> <button class="small" id="btnLv1">Start from level 1</button></div>` : '');
+    const career = (tradeLv > 1 || bank > 0) && !testMode;
+    ovBody.innerHTML = TRADE_HELP + (career ? `<div class="c" style="margin-top:.4em">You carry on at <b style="color:#ffd36e">level ${tradeLv}</b> with <b style="color:#ffd36e">${bank} credits</b> <button class="small" id="btnLv1">Start over</button></div>` : '');
     btnPlay.textContent = tradeLv > 1 && !testMode ? 'LAUNCH \u00b7 LV ' + tradeLv : 'LAUNCH';
-    const l1 = document.getElementById('btnLv1'); if (l1) l1.addEventListener('click', () => { tradeLv = 1; save(); showOverlay('brief'); });
+    const l1 = document.getElementById('btnLv1'); if (l1) l1.addEventListener('click', () => { if (confirmOver(l1)) { tradeLv = 1; bank = 0; save(); showOverlay('brief'); } });
   } else if (kind === 'pause') {
     ovTitle.textContent = 'PAUSED'; ovSub.textContent = ''; ovBody.innerHTML = ''; btnPlay.textContent = 'RESUME';
   } else {
     ovTitle.textContent = 'GAME OVER';
     const tr = mode === 'trade';
     ovSub.textContent = `${tr ? 'CREDITS' : 'SCORE'} ${pad6(score)} · ${docks} DOCK${docks === 1 ? '' : 'S'}`;
-    ovBody.innerHTML = `<div class="c">${tr ? 'Trading Adventure \u00b7 ' : ''}Level ${level} \u00b7 ${newBest ? '<b style="color:#ffd36e">★ New best score! ★</b>' : 'Best: ' + pad6(tr ? bestTrade : best)}${testMode ? '<br><span style="color:#ffd36e">Test mode: best score not saved</span>' : ''}<div id="statsNote"></div><button class="small" id="btnCopyStats">Copy stats</button></div>`;
+    ovBody.innerHTML = `<div class="c">${tr ? 'Trading Adventure \u00b7 This run ' + (score - runStart >= 0 ? '+' : '') + (score - runStart) + ' credits \u00b7 ' : ''}Level ${level} \u00b7 ${newBest ? '<b style="color:#ffd36e">★ New best score! ★</b>' : 'Best: ' + pad6(tr ? bestTrade : best)}${testMode ? '<br><span style="color:#ffd36e">Test mode: best score not saved</span>' : ''}<div id="statsNote"></div><button class="small" id="btnCopyStats">Copy stats</button></div>`;
     statsNote();
     $('btnCopyStats').addEventListener('click', () => {
       const b = $('btnCopyStats'), t = JSON.stringify(G);
@@ -2304,6 +2310,13 @@ function showOverlay(kind) {
 $('btnDemo').addEventListener('click', () => { A.init(); A.resume(); startDemo(); });
 document.getElementById('stage').addEventListener('pointerdown', () => { idleT = 0; if (demo) stopDemo(); });
 // the big button: ARCADE on the title, LAUNCH on the trading briefing, PLAY AGAIN (same mode) after a game, RESUME when paused
+// 'Start over' wipes the level and the money, so it asks for a second tap
+function confirmOver(b) {
+  if (b.dataset.sure) return true;
+  b.dataset.sure = '1'; b.textContent = 'Tap again: lose level and credits';
+  setTimeout(() => { if (b.isConnected) { delete b.dataset.sure; b.textContent = 'Start over'; } }, 3000);
+  return false;
+}
 function playFromOverlay() {
   if (ovKind === 'pause') { resumeGame(); return; }
   startGame(false, 0, ovKind === 'brief' ? 'trade' : ovKind === 'over' ? mode : 'arcade');
