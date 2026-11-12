@@ -10,6 +10,7 @@ Stars blink for 5 seconds and are harmless, then turn solid and deadly. Dock nos
 - From level 2, planets drift across: skim past one for a gravity slingshot.
 - Three levels with their own ship, station and music (space disco, then a brass march in A Lydian).
 - Demo mode with an autopilot and a talkative space trader on channel 7.
+- **Trading Adventure** mode: haul cargo both ways between the stations. Stars cost hull instead of a life, docking repairs it at a price (half the fee below 10% hull), and from level 3 the route is twice as long with a scrolling view. Dex comments on every delivery.
 
 Install it on Android: open the link in Chrome, then ⋮ → **Install app** (or Add to Home screen).
 

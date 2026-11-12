@@ -44,6 +44,9 @@ canvas{display:block}
 #ver{margin-top:.7em;font-size:.75em;color:rgba(159,238,255,.55);letter-spacing:.1em}
 #comm,#demoTag{display:none}
 .demo #comm{display:flex}
+.trade #comm{display:flex;left:calc(176px*var(--s));opacity:0;transition:opacity .6s}
+.trade #comm.on{opacity:1}
+.trade.tp #comm{bottom:auto;top:calc(34px*var(--s))}
 .demo #demoTag{display:block}
 .demo #pad,.demo #testPanel{display:none!important}
 #comm{position:absolute;left:calc(8px*var(--s));right:calc(110px*var(--s));bottom:calc(6px*var(--s));min-height:calc(30px*var(--s));align-items:flex-start;gap:8px;padding:5px 10px;background:rgba(4,14,16,.8);border:1px solid rgba(125,255,154,.45);border-radius:6px;font-size:clamp(11px,calc(14px*var(--s)),15px);color:#b9ffcf;line-height:1.3;pointer-events:none;text-shadow:0 0 6px rgba(125,255,154,.45)}
@@ -65,6 +68,7 @@ canvas{display:block}
 #toast.show{opacity:1}
 #overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(5,1,15,.5)}
 .card{max-width:min(94%,600px);max-height:96%;overflow:auto;text-align:center;padding:clamp(10px,calc(20px*var(--s)),24px) clamp(12px,calc(26px*var(--s)),30px);border:1px solid rgba(110,243,255,.4);border-radius:14px;background:rgba(18,6,44,.88);box-shadow:0 0 30px rgba(255,79,216,.25);font-size:clamp(10px,calc(13.5px*var(--s)),16px);touch-action:auto}
+h1.long{font-size:clamp(18px,calc(32px*var(--s)),40px)}
 h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(22px,calc(46px*var(--s)),56px);letter-spacing:.08em;line-height:1.05;background:linear-gradient(90deg,#ff4fd8,#ffd36e,#6ef3ff);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 10px rgba(255,79,216,.5))}
 #ovSub{color:#6ef3ff;letter-spacing:.2em;margin:.3em 0 .6em;font-size:.9em}
 #ovBody{text-align:left;line-height:1.35;margin:0 auto .7em;max-width:34em}
@@ -73,6 +77,8 @@ h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(22px,calc(4
 #ovBody li{padding-left:1.2em;position:relative;margin:.15em 0}
 #ovBody li::before{content:'▸';position:absolute;left:0;color:#ff4fd8}
 #ovBody .c{text-align:center}
+.big.trade{background:linear-gradient(90deg,#ff9a3c,#2fbf9a);box-shadow:0 0 18px rgba(63,224,184,.5);letter-spacing:.08em;padding:.55em 1.2em}
+.btnrow+.btnrow{margin-top:.55em}
 .big{font-family:'Orbitron',sans-serif;font-weight:700;font-size:1.25em;letter-spacing:.15em;color:#fff;background:linear-gradient(90deg,#ff4fd8,#8a5cff);border:0;border-radius:30px;padding:.55em 1.8em;cursor:pointer;box-shadow:0 0 18px rgba(255,79,216,.6)}
 .small{font:inherit;font-size:.85em;color:#cfe;background:transparent;border:1px solid rgba(110,243,255,.45);border-radius:20px;padding:.35em 1em;cursor:pointer}
 .small.on{background:rgba(110,243,255,.2);color:#fff}
@@ -118,6 +124,7 @@ h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(22px,calc(4
         <label class="sl"><span>Docks/level <output id="oLvD"></output></span><input type="range" id="tLvD" min="3" max="20" step="1"></label>
         <label class="sl"><span>Minutes/level <output id="oLvM"></output></span><input type="range" id="tLvM" min="1" max="6" step="0.5"></label>
         <label class="sl"><span>Planet gravity <output id="oGrav"></output></span><input type="range" id="tGrav" min="0" max="3" step="0.25"></label>
+        <label class="sl"><span>Trade: star damage % <output id="oDmg"></output></span><input type="range" id="tDmg" min="5" max="50" step="5"></label>
         <div class="hint" id="gpDbg" style="flex-basis:100%;font-size:10px;color:#a99ad8"></div>
         <div class="trow">
           <span class="seg">Rocket:<button data-st="tilt">Tilt</button><button data-st="roll">Roll</button><button data-st="both">Both</button></span>
@@ -133,7 +140,8 @@ h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(22px,calc(4
           <h1 id="ovTitle">STAR DOCK</h1>
           <div id="ovSub"></div>
           <div id="ovBody"></div>
-          <div class="btnrow"><button class="big" id="btnPlay">PLAY</button><button class="small" id="btnDemo">▶ Demo</button><button class="small" id="btnFsOv">⛶ Full screen</button><button class="small" id="btnTestToggle">TEST MODE: OFF</button><label class="small" id="lvPick" hidden>Start level <select id="tLevelOv"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option></select></label></div>
+          <div class="btnrow"><button class="big" id="btnPlay">PLAY</button><button class="big trade" id="btnTrade">TRADING ADVENTURE</button></div>
+          <div class="btnrow"><button class="small" id="btnMenu" hidden>◀ Menu</button><button class="small" id="btnDemo">▶ Demo</button><button class="small" id="btnFsOv">⛶ Full screen</button><button class="small" id="btnTestToggle">TEST MODE: OFF</button><label class="small" id="lvPick" hidden>Start level <select id="tLevelOv"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option></select></label></div>
           <div id="ver"></div>
         </div>
       </div>
@@ -145,29 +153,30 @@ h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(22px,calc(4
 
 <script>
 'use strict';
-const VERSION = 'v1.21';
+const VERSION = 'v1.22';
 /* ================= constants & settings ================= */
 const W = 800, H = 450, TOP = 36, BOT = H - 10;
 const LS_X = 12, START_X = 50, SAFE_L = 96, SAFE_R = W - 104, ST_X = W - 34;
 const RS = 1.2;
 const DOCK_TOL = 8, BRAKE_MAX = 3, VMAX = 230, BLINK = 5, FUSE = 5, BLAST = 54, BPM = 116;
-const DEF = { speed: 60, rate: 0.8, station: 55, style: 'both', step: 15, lvDocks: 10, lvMin: 3, startLv: 1, grav: 1 };
-const NUMKEYS = ['speed', 'rate', 'station', 'step', 'lvDocks', 'lvMin', 'startLv', 'grav'], STYLES = ['tilt', 'roll', 'both'];
+const DEF = { speed: 60, rate: 0.8, station: 55, style: 'both', step: 15, lvDocks: 10, lvMin: 3, startLv: 1, grav: 1, dmg: 15 };
+const NUMKEYS = ['speed', 'rate', 'station', 'step', 'lvDocks', 'lvMin', 'startLv', 'grav', 'dmg'], STYLES = ['tilt', 'roll', 'both'];
 const S = { ...DEF, god: false };
-let best = 0, testMode = false, soundMode = 'all';
+let best = 0, bestTrade = 0, testMode = false, soundMode = 'all';
 
 function load() {
   try {
     let d = JSON.parse(localStorage.getItem('stardock.v2') || 'null');
     if (!d) { const o = JSON.parse(localStorage.getItem('stardock.v1') || '{}'); d = { best: o.best }; }
     if (d.best) best = d.best | 0;
+    if (d.bestTrade) bestTrade = d.bestTrade | 0;
     if (d.S) { for (const k of NUMKEYS) if (typeof d.S[k] === 'number') S[k] = d.S[k]; if (STYLES.includes(d.S.style)) S.style = d.S.style; }
     if (d.test) testMode = true;
     if (['all', 'fx', 'mute'].includes(d.sound)) soundMode = d.sound;
   } catch (e) {}
 }
 function save() {
-  const o = { best, test: testMode, sound: soundMode, S: { style: S.style } };
+  const o = { best, bestTrade, test: testMode, sound: soundMode, S: { style: S.style } };
   for (const k of NUMKEYS) o.S[k] = S[k];
   try { localStorage.setItem('stardock.v2', JSON.stringify(o)); } catch (e) {}
 }
@@ -597,6 +606,13 @@ const A = {
     const w = this.noiseHit(now, 'bandpass', 6000, 1.5, 0.12, 0.9, this.fx, true);
     w.frequency.exponentialRampToValueAtTime(500, now + 0.8);
   },
+  hit() {
+    if (!this.ok()) return; const now = this.ctx.currentTime;
+    const f = this.noiseHit(now, 'lowpass', 2400, 0.8, 0.35, 0.45, this.fx, true);
+    f.frequency.exponentialRampToValueAtTime(160, now + 0.4);
+    this.tone(now, { f: 120, f2: 45, dur: 0.3, gain: 0.45 });
+    for (const [fq, g] of [[310, 0.06], [730, 0.035]]) this.tone(now, { type: 'triangle', f: fq, f2: fq * 0.9, dur: 0.3, gain: g });
+  },
   clang() {
     if (!this.ok()) return; const now = this.ctx.currentTime;
     for (const [f, g] of [[523, 0.12], [1187, 0.07], [1764, 0.045], [2630, 0.025]]) this.tone(now, { type: 'triangle', f, f2: f * 0.97, glide: 0.5, dur: 0.55, gain: g, send: 0.3 });
@@ -687,19 +703,35 @@ let level = 1, levelT = 0, levelDocks = 0, levelPending = false, saturns = [], b
 let lsY = TOP - 30, drawingLaunch = false;
 let boom = null, timeScale = 1, slowT = 99, pops = [], bounceCD = 0;
 const curSpeed = () => S.speed + (level - 1) * S.step;
+// ---- modes: 'arcade' (the original game) or 'trade' (Trading Adventure: hull damage, round trips, repair bills) ----
+let mode = 'arcade', dir = 1, hull = 100, hullShow = 100, camX = 0, snapCam = false, WW = W, commHide = 0, hits = [];
+const trade = () => mode === 'trade' && !demo;
+const stX = () => WW - 34;                 // the right-hand station (world x); the field is WW wide
+const safeR = () => WW - 104;
+// the stations: 'L' rides down and its port opens to the right (+1), 'R' rides up and its port opens to the left (-1)
+const FACE = { L: 1, R: -1 };
+const endX = e => e === 'L' ? LS_X : stX();
+const endY = e => e === 'L' ? lsY : stY;
+const target = () => dir > 0 ? 'R' : 'L';
+const clampX = e => endX(e) + FACE[e] * 38;   // where a ship waits on a station, tail in the port
+// Trading Adventure keeps the level 2 fighter from level 3 on (the bat is arcade only)
+const shipKind = () => level >= 3 && mode !== 'trade' ? 'bat' : level >= 2 ? 'fighter' : 'rocket';
+// from level 3 the trading route is twice as long and the view scrolls
+function setField() { WW = mode === 'trade' && level >= 3 ? W * 2 : W; }
+const repairCost = () => { const d = 100 - hull; return d < 0.5 ? 0 : Math.min(500, Math.round(d / 90 * 50) * 10); };
 const SAT_COLS = [['#ffd59a', '#d9823c'], ['#a8f2ff', '#3a86c8'], ['#ffb0e8', '#b8449e'], ['#d2c2ff', '#7356d0'], ['#c9ffb0', '#4f9a3c']];
 function makeSaturns() {
   saturns = [];
   if (level < 2) return;
-  const n = Math.min(level + 1, 7);
+  const n = Math.min(level + 1, 7) * (WW > W ? 2 : 1), span = safeR() - SAFE_L;
   for (let i = 0; i < n; i++) {
     const r = 9 + Math.random() * 5;
     // each planet drifts slowly along its own curve, from top left(ish) to bottom right(ish)
-    const sx = SAFE_L + 20 + Math.random() * 330, ex = SAFE_R - 20 - Math.random() * 330;
+    const sx = SAFE_L + 20 + Math.random() * span * 0.55, ex = safeR() - 20 - Math.random() * span * 0.55;
     const p0 = { x: sx, y: -40 }, p2 = { x: ex, y: H + 40 };
     const dx = ex - sx, dy = H + 80, L = Math.hypot(dx, dy);
     const bend = (Math.random() < 0.5 ? -1 : 1) * (60 + Math.random() * 120);
-    const p1 = { x: clamp((sx + ex) / 2 - dy / L * bend, SAFE_L + 20, SAFE_R - 20), y: H / 2 + dx / L * bend };
+    const p1 = { x: clamp((sx + ex) / 2 - dy / L * bend, SAFE_L + 20, safeR() - 20), y: H / 2 + dx / L * bend };
     const o = { r, p0, p1, p2, u: (i + Math.random() * 0.6) / n, dur: 90 + Math.random() * 60, tilt: (Math.random() - 0.5) * 0.7, col: SAT_COLS[i % SAT_COLS.length], x: 0, y: 0 };
     satPos(o); saturns.push(o);
   }
@@ -789,6 +821,22 @@ const COMM = {
   level2: ["Upgraded to a proper fighter. I don't fight. But I look like I could, and that's half of trading."],
   level3: ["The new ship's shaped like a bat. The dealer said it's 'aerodynamic'. There's no air in space, Kevin.",
            "Steam-powered docking station? In this century? Lovely. Smells like my granddad's workshop."],
+  cargo: [
+    "Forty crates of Glorpian cheese, delivered. The smell stays with the ship. Forever.",
+    "Cargo's in, credits are out. No wait, credits are IN. I always get that backwards.",
+    "Signed for the delivery with my own name this time. Personal growth.",
+    "They paid in actual cash. I didn't know anyone still printed that stuff.",
+    "Delivered two tonnes of 'definitely not contraband'. Customs loved the label.",
+    "Return cargo: mail, mostly. One parcel is ticking. I'm sure it's a clock."
+  ],
+  repair: [
+    "The mechanic asked if I'd flown through a gravel pit. Technically? Yes.",
+    "Repair bill's bigger than the fee. I'm not a trader, I'm a charity for welders.",
+    "They had to pry me out with a can opener. Then billed me for the can opener.",
+    "Hull's held together with tape and optimism. The tape's on the invoice.",
+    "The welder sent me a thank-you card. And a brochure for a holiday home. Paid by me."
+  ],
+  long: ["New route: twice as far, half as sane. If anyone needs me, I'll be somewhere in the middle, swearing."],
   gameover: ["That's the last ship. Okay. Fine. Somebody call a taxi. A space taxi.",
              "Game over, man. Next week I'm opening a café on a nice, stationary planet."]
 };
@@ -805,10 +853,18 @@ function commEvent(kind, p = 1) {
   if (!demo || commLock > 0 || Math.random() > p || !COMM[kind]) return;
   commSay(pick(kind)); commLock = 4; commNextT = 9 + Math.random() * 3;
 }
+// Trading Adventure: Dex says one line at every dock, then the channel fades out again
+function tradeSay(kind) {
+  commSay(pick(kind)); commHide = 2.5 + commText.length / 34 + 6;
+  if (!commEl) commEl = document.getElementById('commText');
+  document.getElementById('comm').classList.add('on');
+}
 function commTick(dt) {
-  if (!demo) return;
-  commLock -= dt; commNextT -= dt;
-  if (commNextT <= 0) { commSay(pick('ambient')); commNextT = 9 + Math.random() * 4; }
+  if (!demo && !trade()) return;
+  if (demo) {
+    commLock -= dt; commNextT -= dt;
+    if (commNextT <= 0) { commSay(pick('ambient')); commNextT = 9 + Math.random() * 4; }
+  } else if (commHide > 0 && (commHide -= dt) <= 0) document.getElementById('comm').classList.remove('on');
   const n = Math.min(commText.length, Math.floor(commShown += dt * 34));
   if (!commEl) commEl = document.getElementById('commText');
   if (commEl.textContent.length !== n) commEl.textContent = commText.slice(0, n);
@@ -886,7 +942,13 @@ function stopDemo() {
   demo = false; braking = false; idleT = 0;
   document.getElementById('app').classList.remove('demo');
   A.thrust(0); A.brake(0); A.setSong('disco');
-  level = 1; saturns = []; mines = []; boom = null; demoStars();
+  toMenu();
+}
+// back to the title screen (after the demo or from the game-over card)
+function toMenu() {
+  demo = false; document.getElementById('app').classList.remove('demo', 'trade');
+  level = 1; dir = 1; WW = W; camX = 0; R.x = START_X; R.fx = 1; R.visible = true; hull = hullShow = 100;
+  saturns = []; mines = []; hits = []; boom = null; demoStars(); A.setSong('disco');
   state = 'title'; showOverlay('title');
 }
 
@@ -894,7 +956,7 @@ function stopDemo() {
 let G = null, trip = null, statsState = '', dbP = null, saving = false, saveAgain = false;
 const r1 = v => Math.round(v * 10) / 10;
 function newStats() {
-  G = { v: 1, game: 'stardock', ver: VERSION, id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), startedAt: new Date().toISOString(), test: testMode,
+  G = { v: 1, game: 'stardock', mode, ver: VERSION, id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), startedAt: new Date().toISOString(), test: testMode,
     settings: { speed: S.speed, rate: S.rate, station: S.station, step: S.step, lvDocks: S.lvDocks, lvMin: S.lvMin, style: S.style, grav: S.grav },
     device: { w: innerWidth, h: innerHeight, touch: coarse }, t: 0, score: 0, docks: 0, level: 1, ended: 'playing',
     levels: [], trips: [], samples: [], mines: 0, mineCleared: 0, brake: 0 };
@@ -907,7 +969,7 @@ function tripStart() { if (G) trip = { t0: G.t, level, y0: Math.round(R.y), brak
 function tripEnd(out, cause) {
   if (!G || !trip) return;
   const s = starCounts(), L = G.levels[G.levels.length - 1];
-  if (G.trips.length < 800) G.trips.push({ lv: trip.level, t0: r1(trip.t0), dur: r1(G.t - trip.t0), out, cause, x: Math.round(R.x), y: Math.round(R.y), brake: r1(trip.brake), mines: trip.mines, bounces: trip.bounces, slings: trip.slings, boost: Math.round(R.boost), stars: s.all, perm: s.perm });
+  if (G.trips.length < 800) G.trips.push({ lv: trip.level, t0: r1(trip.t0), dur: r1(G.t - trip.t0), out, cause, x: Math.round(R.x), y: Math.round(R.y), brake: r1(trip.brake), mines: trip.mines, bounces: trip.bounces, slings: trip.slings, boost: Math.round(R.boost), stars: s.all, perm: s.perm, ...(trade() ? { dir, hull: Math.round(hull), hits: trip.hits || 0, repair: out === 'dock' ? R.repair : undefined } : {}) });
   if (L) { if (out === 'dock') L.docks++; else if (out === 'death') L.deaths++; else L.misses++; }
   trip = null;
 }
@@ -979,9 +1041,11 @@ function demoStars() {
 }
 demoStars();
 
-function resetRocket(ready) { R.drift = 0; R.boost = 0; R.inWell = false; R.wob = 0; R.lock = 0; R.locked = false; R.x = START_X; R.vx = curSpeed(); R.vy = 0; R.a = 0; R.roll = 0; R.spin = 0; R.ready = ready; R.visible = true; R.ty = R.y; brakeLevel = 0; }
+function resetRocket(ready) { R.fx = dir; R.drift = 0; R.boost = 0; R.inWell = false; R.wob = 0; R.lock = 0; R.locked = false; R.x = START_X; R.vx = curSpeed(); R.vy = 0; R.a = 0; R.roll = 0; R.spin = 0; R.ready = ready; R.visible = true; R.ty = R.y; brakeLevel = 0; }
 
-function startGame(demoMode = false, startLv = 0) {
+function startGame(demoMode = false, startLv = 0, m) {
+  if (m) mode = m;
+  if (demoMode) mode = 'arcade';
   A.init(); A.resume(); A.restartSong();
   fuel = BRAKE_MAX;
   score = 0; lives = 3; mineStock = 3; docks = 0; newBest = false;
@@ -989,6 +1053,10 @@ function startGame(demoMode = false, startLv = 0) {
   spawnAcc = 0; stY = H * 0.7; R.y = H / 2;
   demo = demoMode; document.getElementById('app').classList.toggle('demo', demo);
   level = startLv || (testMode ? (S.startLv | 0) || 1 : 1); levelT = 0; levelDocks = 0; levelPending = false; banner = null; jumpTo = null; boom = null;
+  dir = 1; hull = hullShow = 100; hits = []; setField(); camX = 0;
+  document.getElementById('app').classList.toggle('trade', mode === 'trade' && !demo);
+  document.getElementById('comm').classList.remove('on'); commHide = 0;
+  if (!demo) { commText = ''; commShown = 0; const ce = document.getElementById('commText'); if (ce) ce.textContent = ''; }
   makeSaturns(); resetRocket(0); clampToLauncher(); R.inv = 0;
   A.setSong(level >= 3 ? 'march' : 'disco');
   phase = 'fly'; state = 'play'; ov.hidden = true;
@@ -1011,31 +1079,40 @@ function safeRespawnY() {
   return H / 2;
 }
 // the launch station on the left brings a fresh ship down from the top; the player's first move releases it
-function clampToLauncher() {
-  lsY = TOP - 30; R.clamped = true; R.clampT = 0; R.ready = 0;
-  R.x = START_X; R.y = lsY; R.ty = R.y; R.vx = 0; R.vy = 0; R.a = 0; R.roll = 0;
+function clampToLauncher() { clampTo('L'); }
+// a ship waits on station e; keep=false brings a fresh ship in from the edge, keep=true stays where it docked
+function clampTo(e, keep) {
+  if (!keep) { if (e === 'L') lsY = TOP - 30; else stY = BOT + 30; }
+  dir = FACE[e]; R.home = e; R.fx = dir; R.clamped = true; R.clampT = 0; R.ready = 0;
+  R.x = clampX(e); R.y = endY(e); R.ty = R.y; R.vx = 0; R.vy = 0; R.a = 0; R.roll = 0;
+  snapCam = true;
 }
+const canLaunch = () => R.home === 'R' ? stY <= BOT - 8 : lsY >= TOP + 8;
 function launch() {
-  R.clamped = false; R.vx = curSpeed() * 0.5; R.drift = S.station * 0.9; // keeps a little of the station's downward drift
-  A.launchFx(); burst(R.x - 14, R.y, 18, ['#fff', '#ffd36e', '#9feeff'], 90, 0.5);
-  if (level >= 3) for (let i = 0; i < 6; i++) steam.push({ x: LS_X + 22, y: R.y + (i % 2 ? 8 : -8), vx: -6 - Math.random() * 10, vy: (i % 2 ? 1 : -1) * (8 + Math.random() * 10), r: 2, t: 0, life: 1.1 });
+  const f = FACE[R.home || 'L'];
+  R.clamped = false; R.vx = curSpeed() * 0.5; R.drift = f * S.station * 0.9; // keeps a little of the station's drift
+  A.launchFx(); burst(R.x - f * 14, R.y, 18, ['#fff', '#ffd36e', '#9feeff'], 90, 0.5);
+  if (level >= 3) for (let i = 0; i < 6; i++) steam.push({ x: endX(R.home || 'L') + f * 22, y: R.y + (i % 2 ? 8 : -8), vx: -f * (6 + Math.random() * 10), vy: (i % 2 ? 1 : -1) * (8 + Math.random() * 10), r: 2, t: 0, life: 1.1 });
   if (trip) { trip.ly = Math.round(R.y); trip.wait = r1(R.clampT); }
 }
 function relaunch(ready) {
   const up = levelPending ? levelUp() : false;
-  resetRocket(0); clampToLauncher();
+  resetRocket(0);
+  if (trade()) clampTo(R.home || 'L'); else clampToLauncher(); // trading: back to the station this leg started from
   tripStart();
 }
 function levelUp() {
   statLevelEnd(levelPending);
   level = jumpTo || level + 1; jumpTo = null; levelT = 0; levelDocks = 0; levelPending = false;
   for (const s of stars) pops.push({ x: s.x, y: s.y, t: -s.x / 1300, quiet: true });
-  stars = []; mines = []; spawnAcc = 0;
+  stars = []; mines = []; hits = []; spawnAcc = 0;
+  setField(); snapCam = true;
   makeSaturns();
   banner = { text: 'LEVEL ' + level, t: 0 };
   A.setSong(level >= 3 ? 'march' : 'disco');
   A.say(LV_WORD[level] || 'level-nine');
   if (demo) { commLock = 0; commEvent(level === 2 ? 'level2' : level === 3 ? 'level3' : 'level'); }
+  else if (trade()) tradeSay(level === 2 ? 'level2' : level === 3 ? 'long' : 'level');
   statLevelStart();
   return true;
 }
@@ -1048,16 +1125,16 @@ function resumeGame() { if (G && G.ended !== 'gameover') G.ended = 'playing'; st
 function gameOver() {
   if (demo) { state = 'over'; A.thrust(0); A.brake(0); demoT = 3; commLock = 0; commEvent('gameover'); return; }
   state = 'over'; A.thrust(0); A.brake(0); A.over();
-  if (!testMode && !demo && score > best) { best = score; newBest = true; save(); }
+  if (!testMode && !demo) { if (mode === 'trade') { if (score > bestTrade) { bestTrade = score; newBest = true; save(); } } else if (score > best) { best = score; newBest = true; save(); } }
   if (G) { statLevelEnd('gameover'); G.ended = 'gameover'; G.endedAt = new Date().toISOString(); }
   showOverlay('over');
   saveStats();
 }
 
 function spawnStar() {
-  if (stars.length >= 600) return;
+  if (stars.length >= 600 * WW / W) return;
   for (let i = 0; i < 14; i++) {
-    const x = SAFE_L + Math.random() * (SAFE_R - SAFE_L), y = TOP + 8 + Math.random() * (BOT - TOP - 16);
+    const x = SAFE_L + Math.random() * (safeR() - SAFE_L), y = TOP + 8 + Math.random() * (BOT - TOP - 16);
     const dx = x - R.x, dy = y - R.y;
     if (dx * dx + dy * dy < 50 * 50) continue;
     if (saturns.some(o => Math.hypot(o.x - x, o.y - y) < o.r * 2.3 + 5)) continue;
@@ -1073,9 +1150,9 @@ function spawnStar() {
 function rocketPts() {
   const c = Math.cos(R.a), s = Math.sin(R.a);
   return [
-    { x: R.x + c * 18, y: R.y + s * 18, r: 6 },
+    { x: R.x + dir * c * 18, y: R.y + s * 18, r: 6 },
     { x: R.x, y: R.y, r: 7 },
-    { x: R.x - c * 13, y: R.y - s * 13, r: 6 }
+    { x: R.x - dir * c * 13, y: R.y - s * 13, r: 6 }
   ];
 }
 
@@ -1100,26 +1177,51 @@ function die(cause) {
   burst(R.x, R.y, 45, ['#ffd36e', '#ff7a3c', '#fff'], 110, 2.2);
 }
 
+// Trading Adventure: a solid star costs hull and knocks the ship off course, with a small blast on that side
+function starHit(s) {
+  hull = Math.max(0, hull - S.dmg);
+  const side = s.y < R.y ? -1 : 1;            // the star was above (-1) or below (+1)
+  R.vy = -side * 150; R.ty = clamp(R.y - side * 26, TOP + 8, BOT - 8); R.vx *= 0.7;
+  R.wob = 1; shake = Math.max(shake, 0.35);
+  hits.push({ x: s.x, y: s.y, t: 0 });
+  burst(s.x, s.y, 22, ['#fff', '#ffd36e', '#ff7a3c', '#9feeff'], 120, 0.6);
+  floats.push({ x: R.x, y: R.y + side * 24, text: '-' + S.dmg + '% HULL', t: 0, c: '#ff8a5c' });
+  A.hit(); rumble(160, 0.8, 0.4);
+  if (trip) trip.hits = (trip.hits || 0) + 1; if (G) G.hits = (G.hits || 0) + 1;
+}
+function mineHit(m) {
+  hull = Math.max(0, hull - 50);
+  const side = R.y < m.y ? -1 : 1;
+  R.vy = side * 200; R.ty = clamp(R.y + side * 40, TOP + 8, BOT - 8); R.vx *= 0.6; R.wob = 1;
+  floats.push({ x: R.x, y: R.y - 24, text: '-50% HULL', t: 0, c: '#ff8a5c' }); A.hit(); rumble(260, 1, 0.5);
+  if (G) G.mineHits = (G.mineHits || 0) + 1;
+  if (hull <= 0) die('mine');
+}
 function circRect(p, x, y, w, h) {
   const cx = clamp(p.x, x, x + w), cy = clamp(p.y, y, y + h), dx = p.x - cx, dy = p.y - cy;
   return dx * dx + dy * dy < p.r * p.r;
 }
 function bounce(p) {
   bounceCD = 0.4;
-  const side = Math.sign(R.y - stY) || 1;
-  R.vx = -Math.max(45, Math.abs(R.vx) * 0.7); R.x -= 4;
+  const e = target(), f = FACE[e], ex = endX(e);
+  const side = Math.sign(R.y - endY(e)) || 1;
+  R.vx = -Math.max(45, Math.abs(R.vx) * 0.7); R.x -= dir * 4;
   R.vy = side * 140; R.ty = clamp(R.y + side * 22, TOP + 8, BOT - 8);
   R.wob = 1; shake = Math.max(shake, 0.25);
   A.clang();
-  burst(Math.min(p.x + p.r, ST_X - 14), p.y, 16, ['#fff', '#ffd36e', '#9feeff'], 130, 0.45);
-  floats.push({ x: ST_X - 80, y: R.y - 20, text: 'OFF CENTRE!', t: 0, c: '#ffb347' });
+  burst(f < 0 ? Math.min(p.x + p.r, ex - 14) : Math.max(p.x - p.r, ex + 14), p.y, 16, ['#fff', '#ffd36e', '#9feeff'], 130, 0.45);
+  floats.push({ x: ex + f * 80, y: R.y - 20, text: 'OFF CENTRE!', t: 0, c: '#ffb347' });
   if (trip) trip.bounces++; if (G) G.bounces = (G.bounces || 0) + 1;
   commEvent('bounce', 0.6); rumble(90, 0.5, 0.3);
 }
-const seatX = () => ST_X - 22 - (level >= 3 ? 12.6 : level >= 2 ? 19 : 16.4) * RS; // nose face against the port, fully docked
+// nose face against the port, fully docked
+const seatX = e => endX(e) + FACE[e] * (22 + ({ bat: 12.6, fighter: 19, rocket: 16.4 })[shipKind()] * RS);
 function dock() {
-  R.dx0 = R.x; R.dy0 = R.y - stY; R.a0 = R.a; R.roll0 = R.roll; R.seated = false;
-  phase = 'dock'; dockT = 0; score += 1000; docks++; levelDocks++; mineStock++; tripEnd('dock'); A.dock(); A.thrust(0); A.brake(0); brakeLevel = 0;
+  const e = target(); R.dockEnd = e;
+  R.dx0 = R.x; R.dy0 = R.y - endY(e); R.a0 = R.a; R.roll0 = R.roll; R.seated = false;
+  // trading: the cargo pays 1000, the repairs come off that (half of it if the hull is below 10%)
+  R.repair = trade() ? repairCost() : 0; R.hull0 = hull; if (G && R.repair) G.repairs = (G.repairs || 0) + R.repair;
+  phase = 'dock'; dockT = 0; score += 1000 - R.repair; docks++; levelDocks++; mineStock++; tripEnd('dock'); A.dock(); A.thrust(0); A.brake(0); brakeLevel = 0;
 
   updateMineBtn();
 }
@@ -1137,14 +1239,14 @@ function detonate(m) {
   if (G) G.mineCleared += n;
   if (state === 'play' && phase === 'fly' && R.inv <= 0 && !S.god) {
     const dx = R.x - m.x, dy = R.y - m.y;
-    if (dx * dx + dy * dy < (BLAST + 4) * (BLAST + 4)) die('mine');
+    if (dx * dx + dy * dy < (BLAST + 4) * (BLAST + 4)) { if (trade()) mineHit(m); else die('mine'); }
   }
 }
 
 function dropMine() {
   if (state !== 'play' || phase !== 'fly' || R.ready > 0 || R.clamped) return;
   if (mineStock <= 0) { A.empty(); return; }
-  mines.push({ x: R.x - 8, y: R.y, t: 0 }); mineStock--; A.drop(); updateMineBtn();
+  mines.push({ x: R.x - dir * 8, y: R.y, t: 0 }); mineStock--; A.drop(); updateMineBtn();
   if (G) G.mines++; if (trip) trip.mines++;
   commEvent('mine', 0.35);
 }
@@ -1157,6 +1259,12 @@ function update(dt, rdt = dt) {
   stY -= S.station * dt; if (stY < -48) stY = H + 48;
   lsY += S.station * dt; if (lsY > H + 48) lsY = -48;
   for (const f of far) { f.x -= f.sp * dt; if (f.x < 0) f.x += W; }
+  // camera: on the long trading route the view follows the ship, looking ahead
+  const camT = clamp(R.x - ((R.fx === undefined ? 1 : R.fx) >= 0 ? 0.36 : 0.64) * W, 0, WW - W);
+  if (snapCam) { camX = camT; snapCam = false; } else camX += (camT - camX) * Math.min(1, dt * 2.5);
+  hullShow += (hull - hullShow) * Math.min(1, dt * 6);
+  for (const h of hits) h.t += dt;
+  if (hits.length) hits = hits.filter(h => h.t < 0.6);
   for (const p of parts) { p.t += dt; p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= 0.98; p.vy *= 0.98; }
   parts = parts.filter(p => p.t < p.life);
   if (banner) { banner.t += dt; if (banner.t > 2.6) banner = null; }
@@ -1165,7 +1273,7 @@ function update(dt, rdt = dt) {
   if (state === 'title' && !ov.hidden && ovKind === 'title') { idleT += rdt; if (idleT > 30) startDemo(); }
   if (state !== 'title' && level >= 3) {
     steamT -= dt;
-    if (steamT <= 0) { steamT = 0.3 + Math.random() * 0.3; steam.push({ x: ST_X - 4.5, y: stY - 48, vx: -4 - Math.random() * 6, vy: -16 - Math.random() * 6, r: 2.5, t: 0, life: 1.6 }); }
+    if (steamT <= 0) { steamT = 0.3 + Math.random() * 0.3; steam.push({ x: stX() - 4.5, y: stY - 48, vx: -4 - Math.random() * 6, vy: -16 - Math.random() * 6, r: 2.5, t: 0, life: 1.6 }); }
   }
   for (const p of steam) { p.t += dt; p.x += p.vx * dt; p.y += p.vy * dt; p.r += dt * 6; }
   if (steam.length) steam = steam.filter(p => p.t < p.life);
@@ -1189,7 +1297,7 @@ function update(dt, rdt = dt) {
     if (Math.floor(G.t / 10) > Math.floor(t0 / 10) && G.samples.length < 400) { const c = starCounts(); G.samples.push([r1(G.t), level, c.all, c.perm, score]); }
   }
   if (!levelPending && (levelDocks >= S.lvDocks || levelT >= S.lvMin * 60)) levelPending = levelDocks >= S.lvDocks ? 'docks' : 'time';
-  if (phase !== 'dock') spawnAcc += S.rate * dt;
+  if (phase !== 'dock') spawnAcc += S.rate * dt * WW / W;
   while (spawnAcc >= 1) { spawnAcc -= 1; spawnStar(); }
   for (const s of stars) {
     s.t += dt;
@@ -1213,24 +1321,40 @@ function update(dt, rdt = dt) {
   else if (phase === 'dock') {
     // glide onto the port's centre line (riding along with the moving station), straighten out, seat with a clunk, then take a breath
     dockT += dt;
+    const de = R.dockEnd || 'R', f = FACE[de], ex = endX(de), ey = endY(de);
     const k = Math.min(1, dockT / 0.45), e = k * k * (3 - 2 * k);
-    R.x = R.dx0 + (seatX() - R.dx0) * e; R.y = stY + R.dy0 * (1 - e);
+    R.x = R.dx0 + (seatX(de) - R.dx0) * e; R.y = ey + R.dy0 * (1 - e);
     R.a = R.a0 * (1 - e); R.roll = R.roll0 * (1 - e); R.spin = 0; R.wob = 0; R.vy = 0;
     R.lock = 1 + clamp((dockT - 0.2) / 0.3, 0, 1);
+    if (trade()) {
+      hull = R.hull0 + (100 - R.hull0) * clamp((dockT - 0.5) / 0.8, 0, 1); // the yard patches the hull
+      // then the ship backs off the port and turns round for the trip back
+      const q = clamp((dockT - 0.95) / 0.6, 0, 1), qe = q * q * (3 - 2 * q);
+      if (q > 0) { R.x = seatX(de) + (clampX(de) - seatX(de)) * qe; R.fx = -f * Math.cos(Math.PI * qe); R.lock = Math.max(0, 2 - q * 3); }
+    }
     if (!R.seated && dockT >= 0.45) {
       R.seated = true; A.clunk(); commEvent('dock', 0.45); rumble(120, 0.2, 0.7);
-      floats.push({ x: ST_X - 70, y: stY - 26, text: '+1000', t: 0, c: '#ffd36e' });
-      burst(ST_X - 22, stY, 30, ['#ffe14a', '#fff', '#6ef3ff'], 100, 0.7);
-      if (level >= 3) for (let i = 0; i < 8; i++) steam.push({ x: ST_X - 20, y: stY + (i % 2 ? 9 : -9), vx: -10 - Math.random() * 20, vy: (i % 2 ? 1 : -1) * (10 + Math.random() * 14), r: 2, t: 0, life: 1.2 });
+      if (trade()) {
+        floats.push({ x: ex + f * 80, y: ey - 26, text: '+1000 CARGO', t: 0, c: '#ffd36e' });
+        if (R.repair) floats.push({ x: ex + f * 80, y: ey + 30, text: '-' + R.repair + ' REPAIRS', t: -0.5, c: R.repair >= 500 ? '#ff5a5a' : '#ff9a6a' });
+        if (!levelPending) tradeSay(R.repair >= 250 ? 'repair' : Math.random() < 0.4 ? 'cargo' : Math.random() < 0.5 ? 'dock' : 'ambient');
+      } else floats.push({ x: ex + f * 70, y: ey - 26, text: '+1000', t: 0, c: '#ffd36e' });
+      burst(ex + f * 22, ey, 30, ['#ffe14a', '#fff', '#6ef3ff'], 100, 0.7);
+      if (level >= 3) for (let i = 0; i < 8; i++) steam.push({ x: ex + f * 20, y: ey + (i % 2 ? 9 : -9), vx: f * (10 + Math.random() * 20), vy: (i % 2 ? 1 : -1) * (10 + Math.random() * 14), r: 2, t: 0, life: 1.2 });
     }
-    if (dockT > 1.7) { R.y = clamp(R.y, TOP + 8, BOT - 8); relaunch(0.8); phase = 'fly'; }
+    if (dockT > 1.7) {
+      if (trade()) { // stay on this station, facing home: the next move launches the trip back
+        if (levelPending) levelUp();
+        resetRocket(0); clampTo(de, true); tripStart(); phase = 'fly';
+      } else { R.y = clamp(R.y, TOP + 8, BOT - 8); relaunch(0.8); phase = 'fly'; }
+    }
   } else if (phase === 'dead') {
     deadT += rdt;
     if (deadT > 2.9) {
       if (lives <= 0) gameOver();
       else {
         if (mineStock === 0) { mineStock = 3; updateMineBtn(); floats.push({ x: 120, y: H / 2 - 30, text: '+3 MINES', t: 0, c: '#ff9a9a' }); A.drop(); if (G) G.mineGifts = (G.mineGifts || 0) + 1; }
-        R.y = safeRespawnY(); relaunch(1.2); R.inv = 2.2; phase = 'fly';
+        hull = 100; R.y = safeRespawnY(); relaunch(1.2); R.inv = 2.2; phase = 'fly';
       }
     }
   }
@@ -1238,14 +1362,15 @@ function update(dt, rdt = dt) {
 
 function updateRocket(dt) {
   if (R.clamped) {
-    R.clampT += dt; R.x = START_X; R.vx = 0; R.vy = 0; R.a *= 0.8; R.roll *= 0.8;
+    const he = R.home || 'L';
+    R.clampT += dt; R.x = clampX(he); R.vx = 0; R.vy = 0; R.a *= 0.8; R.roll *= 0.8;
     const moved = Math.abs(R.ty - R.y) > 2 || keys.up || keys.down || gpUp || gpDown || gpAxis !== 0; // the first move
-    R.y = lsY;
-    const can = lsY >= TOP + 8;
+    R.y = endY(he);
+    const can = canLaunch();
     let go = false;
     if (demo) go = can && R.clampT > 0.6 && (laneCost(R.y, Math.max(25, curSpeed())) < 40 || R.clampT > 4);
     else go = can && moved;
-    if (can && lsY >= BOT - 14) go = true; // end of the line: launched anyway
+    if (can && (he === 'L' ? R.y >= BOT - 14 : R.y <= TOP + 14)) go = true; // end of the line: launched anyway
     A.thrust(0); A.brake(0);
     if (!go) { R.ty = R.y; return; }
     const keep = R.ty; launch(); R.ty = clamp(demo ? R.y : keep, TOP + 8, BOT - 8);
@@ -1265,7 +1390,7 @@ function updateRocket(dt) {
   R.a += (tiltT - R.a) * Math.min(1, dt * 10);
   R.roll += (rollT - R.roll) * Math.min(1, dt * 8);
   if (R.wob > 0) R.wob = Math.max(0, R.wob - dt * 2.2);
-  if (R.drift > 0.5) { R.ty = clamp(R.ty + R.drift * dt, TOP + 8, BOT - 8); R.drift *= Math.exp(-dt * 1.2); }
+  if (Math.abs(R.drift) > 0.5) { R.ty = clamp(R.ty + R.drift * dt, TOP + 8, BOT - 8); R.drift *= Math.exp(-dt * 1.2); }
   A.thrust(Math.min(1, Math.abs(R.vy) / VMAX));
   if (R.inv > 0) R.inv -= dt;
   const wantBrake = braking && fuel > 0 && R.ready <= 0;
@@ -1292,12 +1417,28 @@ function updateRocket(dt) {
     } else R.inWell = false;
     const tgt = wantBrake ? 0 : curSpeed() + R.boost;
     if (R.vx > tgt) R.vx = Math.max(tgt, R.vx - 340 * dt); else R.vx = Math.min(tgt, R.vx + 170 * dt);
-    R.x += R.vx * dt;
+    R.x += dir * R.vx * dt;
     if (Math.random() < dt * 45 * clamp(R.vx / Math.max(1, curSpeed()), 0, 1) && parts.length < 700)
-      parts.push({ x: R.x - 22, y: R.y + (Math.random() - 0.5) * 4, vx: -50 - Math.random() * 40, vy: (Math.random() - 0.5) * 14, life: 0.35, t: 0, c: Math.random() < 0.5 ? '#ffb347' : '#ff4fd8', s: 1.5 });
+      parts.push({ x: R.x - dir * 22, y: R.y + (Math.random() - 0.5) * 4, vx: -dir * (50 + Math.random() * 40), vy: (Math.random() - 0.5) * 14, life: 0.35, t: 0, c: Math.random() < 0.5 ? '#ffb347' : '#ff4fd8', s: 1.5 });
   }
+  // a damaged hull trails smoke, and sparks when it's nearly gone
+  if (trade() && hull < 50 && parts.length < 700 && Math.random() < dt * 30 * (1 - hull / 50))
+    parts.push({ x: R.x - dir * 4 + (Math.random() - 0.5) * 8, y: R.y - 3, vx: -dir * (15 + Math.random() * 20), vy: -8 - Math.random() * 10, life: 0.9, t: 0, c: Math.random() < 0.7 ? '#6d6380' : '#9a8fb0', s: 2.5 });
+  if (trade() && hull < 25 && parts.length < 700 && Math.random() < dt * 14)
+    parts.push({ x: R.x + (Math.random() - 0.5) * 16, y: R.y + (Math.random() - 0.5) * 8, vx: (Math.random() - 0.5) * 60, vy: (Math.random() - 0.5) * 60, life: 0.3, t: 0, c: '#ffe27a', s: 1.5 });
   const pts = rocketPts();
-  if (R.inv <= 0 && !S.god) {
+  if (R.inv <= 0 && !S.god && trade()) {
+    let hitStars = null;
+    for (const s of stars) {
+      if (!s.perm) continue;
+      for (const p of pts) {
+        const dx = s.x - p.x, dy = s.y - p.y;
+        if (dx * dx + dy * dy < (p.r + 1.5) * (p.r + 1.5)) { s.dead = true; (hitStars = hitStars || []).push(s); break; }
+      }
+    }
+    if (hitStars) { stars = stars.filter(s => !s.dead); for (const s of hitStars) starHit(s); if (hull <= 0) { die('star'); return; } }
+    for (const o of saturns) for (const p of pts) if (hitSaturn(o, p)) { die('saturn'); return; }
+  } else if (R.inv <= 0 && !S.god) {
     for (const s of stars) {
       if (!s.perm) continue;
       for (const p of pts) {
@@ -1309,17 +1450,18 @@ function updateRocket(dt) {
   }
   // dock only with the nose in the marked port; anything else bounces off the station
   if (bounceCD > 0) bounceCD -= dt;
-  const n = pts[0];
-  const aligned = R.ready <= 0 && Math.abs(n.y - stY) <= DOCK_TOL && n.x > ST_X - 260;
+  const n = pts[0], te = target(), f = FACE[te], ex = endX(te), ey = endY(te);
+  const aligned = R.ready <= 0 && Math.abs(n.y - ey) <= DOCK_TOL && (n.x - ex) * f < 260;
   if (aligned && !R.locked) A.lockOn();
   R.locked = aligned;
   R.lock += ((aligned ? 1 : 0) - R.lock) * Math.min(1, dt * 12);
-  if (n.x + n.r >= ST_X - 23 && n.x <= ST_X - 8 && Math.abs(n.y - stY) <= DOCK_TOL) { dock(); return; }
+  const q = (n.x - (ex + f * 23)) * -f;      // how far the nose is into the port mouth
+  if (q >= -n.r && q <= 15 && Math.abs(n.y - ey) <= DOCK_TOL) { dock(); return; }
   if (bounceCD <= 0) for (const p of pts) {
-    if (circRect(p, ST_X - 14, stY - 34, 28, 68) || circRect(p, ST_X - 22, stY - 11, 9, 22)) { bounce(p); break; }
+    if (circRect(p, ex - 14, ey - 34, 28, 68) || circRect(p, f < 0 ? ex - 22 : ex + 13, ey - 11, 9, 22)) { bounce(p); break; }
   }
-  if (R.x > W + 30) {
-    floats.push({ x: W - 150, y: R.y, text: 'MISSED', t: 0, c: '#ff7ad9' });
+  if (dir > 0 ? R.x > WW + 30 : R.x < -30) {
+    floats.push({ x: dir > 0 ? WW - 150 : 150, y: R.y, text: 'MISSED', t: 0, c: '#ff7ad9' });
     A.miss(); tripEnd('miss'); relaunch(0.7); commEvent('miss', 0.6);
   }
 }
@@ -1851,7 +1993,25 @@ function drawBoom(b) {
     ctx.save(); ctx.globalAlpha = al; ctx.translate(d.x, d.y); ctx.rotate(d.rot);
     ctx.fillStyle = d.c; ctx.fillRect(-d.w / 2, -d.h / 2, d.w, d.h); ctx.restore();
   }
-  if (a < 0.07) { ctx.fillStyle = `rgba(255,250,235,${0.5 * (1 - a / 0.07)})`; ctx.fillRect(0, 0, W, H); }
+  if (a < 0.07) { ctx.fillStyle = `rgba(255,250,235,${0.5 * (1 - a / 0.07)})`; ctx.fillRect(camX, 0, W, H); }
+}
+
+// a small fireball where a star hit the hull
+function drawHits() {
+  if (!hits.length) return;
+  ctx.save(); ctx.globalCompositeOperation = 'lighter';
+  for (const h of hits) {
+    const k = h.t / 0.6, e = 1 - Math.pow(1 - k, 3), f = 1 - k, rad = 4 + 16 * e;
+    const g = ctx.createRadialGradient(h.x, h.y, 0, h.x, h.y, rad);
+    g.addColorStop(0, `rgba(255,250,220,${0.9 * f})`); g.addColorStop(0.4, `rgba(255,170,80,${0.7 * f})`); g.addColorStop(1, 'rgba(255,60,40,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(h.x, h.y, rad, 0, 6.283); ctx.fill();
+    ctx.strokeStyle = `rgba(255,230,190,${0.8 * f})`; ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.ellipse(h.x, h.y, 6 + 40 * e, (6 + 40 * e) * 0.14, 0, 0, 6.283); ctx.stroke();
+  }
+  ctx.restore();
+}
+function drawStationFor(x, y) {
+  if (state !== 'title' && level >= 3) drawStationSteam(x, y); else if (state !== 'title' && level >= 2) drawStationDark(x, y); else drawStation(x, y);
 }
 
 function pad6(n) { return String(n).padStart(6, '0'); }
@@ -1862,10 +2022,11 @@ function drawHUD() {
   lg.addColorStop(0, '#ff4fd8'); lg.addColorStop(1, '#6ef3ff');
   ctx.fillStyle = lg; ctx.fillRect(0, 28, W, 1);
   ctx.font = '15px "Share Tech Mono", ui-monospace, monospace'; ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
-  ctx.fillStyle = '#ff8ae6'; ctx.fillText('SCORE', 10, 15);
-  ctx.fillStyle = '#fff'; ctx.fillText(pad6(score), 60, 15);
-  ctx.fillStyle = '#ffd36e'; ctx.fillText('LV', 134, 15);
-  ctx.fillStyle = '#fff'; ctx.fillText(String(level), 156, 15);
+  const tr = mode === 'trade' && !demo && state !== 'title';
+  ctx.fillStyle = '#ff8ae6'; ctx.fillText(tr ? 'CREDITS' : 'SCORE', 10, 15);
+  ctx.fillStyle = '#fff'; ctx.fillText(pad6(score), tr ? 74 : 60, 15);
+  ctx.fillStyle = '#ffd36e'; ctx.fillText('LV', tr ? 136 : 134, 15);
+  ctx.fillStyle = '#fff'; ctx.fillText(String(level), tr ? 158 : 156, 15);
   for (let i = 0; i < 3; i++) {
     ctx.globalAlpha = i < lives ? 1 : 0.18;
     drawRocket(196 + i * 25, 15, 0, 0.55, 0, 0, 0, 0);
@@ -1873,6 +2034,14 @@ function drawHUD() {
   ctx.globalAlpha = 1;
   ctx.fillStyle = '#ff9a9a'; ctx.fillText('MINES', 272, 15);
   ctx.fillStyle = '#fff'; ctx.fillText(String(mineStock), 322, 15);
+  if (tr) { // hull bar instead of the best score
+    const v = clamp(hullShow, 0, 100) / 100, col = v > 0.5 ? '#7dff9a' : v > 0.25 ? '#ffd36e' : '#ff5a5a';
+    ctx.fillStyle = '#9feeff'; ctx.fillText('HULL', 346, 15);
+    ctx.fillStyle = 'rgba(255,255,255,0.12)'; ctx.fillRect(386, 9, 84, 12);
+    ctx.fillStyle = col; ctx.fillRect(387, 10, 82 * v, 10);
+    if (v < 0.1 && Math.floor(time * 4) % 2) { ctx.strokeStyle = '#ff5a5a'; ctx.lineWidth = 1; ctx.strokeRect(385.5, 8.5, 85, 13); }
+    return;
+  }
   ctx.fillStyle = '#9feeff'; ctx.fillText('BEST', 350, 15);
   ctx.fillStyle = '#fff'; ctx.fillText(pad6(testMode || demo ? best : Math.max(best, score)), 390, 15);
 }
@@ -1885,7 +2054,8 @@ function render() {
   ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; ctx.shadowBlur = 0; ctx.setLineDash([]);
   ctx.fillStyle = '#0b0322'; ctx.fillRect(-20, -20, W + 40, H + 40);
   ctx.drawImage(bg, 0, 0, W, H);
-  for (const f of far) { ctx.fillStyle = `rgba(150,165,255,${f.a})`; ctx.fillRect(f.x, f.y, 1, 1); }
+  for (const f of far) { ctx.fillStyle = `rgba(150,165,255,${f.a})`; ctx.fillRect((((f.x - camX * (0.2 + f.sp / 60)) % W) + W) % W, f.y, 1, 1); }
+  ctx.save(); ctx.translate(-camX, 0); // the world scrolls on the long trading route
   drawStars();
   if (saturns.length) {
     ctx.setLineDash([3, 6]); ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(160,160,175,0.3)';
@@ -1905,11 +2075,13 @@ function render() {
   drawMines();
   drawPops();
   if (steam.length) drawSteam();
-  ctx.save(); ctx.translate(2 * LS_X, 0); ctx.scale(-1, 1); drawingLaunch = true; // the launch station: a mirrored station on the left
-  if (state !== 'title' && level >= 3) drawStationSteam(LS_X, lsY); else if (state !== 'title' && level >= 2) drawStationDark(LS_X, lsY); else drawStation(LS_X, lsY);
+  // the docking beam shows only on the station you're flying to (in arcade: always the right one)
+  const beamL = trade() && state === 'play' && target() === 'L';
+  ctx.save(); ctx.translate(2 * LS_X, 0); ctx.scale(-1, 1); drawingLaunch = !beamL; // the launch station: a mirrored station on the left
+  drawStationFor(LS_X, lsY);
   drawingLaunch = false; ctx.restore();
-  if (state !== 'title' && level >= 3) drawStationSteam(ST_X, stY);
-  else if (state !== 'title' && level >= 2) drawStationDark(ST_X, stY); else drawStation(ST_X, stY);
+  drawingLaunch = beamL; drawStationFor(stX(), stY); drawingLaunch = false;
+  drawHits();
   if (R.visible && state !== 'over') {
     const blink = R.inv > 0 && Math.floor(time * 12) % 2 === 0;
     ctx.globalAlpha = blink ? 0.35 : 1;
@@ -1918,11 +2090,15 @@ function render() {
       const k = R.boost / Math.max(1, curSpeed());
       ctx.strokeStyle = `rgba(110,243,255,${Math.min(0.5, k)})`; ctx.lineWidth = 1;
       ctx.beginPath();
-      for (const oy of [-7, 0, 7]) { const L = 14 + 50 * k + Math.random() * 6; ctx.moveTo(R.x - 22, R.y + oy); ctx.lineTo(R.x - 22 - L, R.y + oy); }
+      for (const oy of [-7, 0, 7]) { const L = 14 + 50 * k + Math.random() * 6; ctx.moveTo(R.x - dir * 22, R.y + oy); ctx.lineTo(R.x - dir * (22 + L), R.y + oy); }
       ctx.stroke();
     }
     const flying = state === 'play' && phase === 'fly';
-    (state === 'title' ? drawRocket : level >= 3 ? drawBat : level >= 2 ? drawFighter : drawRocket)(R.x, R.y, R.a + Math.sin(time * 32) * 0.3 * R.wob, RS, flame, flying ? R.vy : 0, R.roll + R.spin, flying ? brakeLevel : 0, state !== 'title' ? R.lock : 0);
+    const fx = state === 'title' || R.fx === undefined ? 1 : R.fx; // -1: flying left; in between while turning round
+    ctx.save(); ctx.translate(R.x, R.y); ctx.scale(Math.abs(fx) < 0.04 ? 0.04 * (fx < 0 ? -1 : 1) : fx, 1);
+    const kind = state === 'title' ? 'rocket' : shipKind();
+    (kind === 'bat' ? drawBat : kind === 'fighter' ? drawFighter : drawRocket)(0, 0, R.a + Math.sin(time * 32) * 0.3 * R.wob, RS, flame, flying ? R.vy : 0, R.roll + R.spin, flying ? brakeLevel : 0, state !== 'title' ? R.lock : 0);
+    ctx.restore();
     ctx.globalAlpha = 1;
   }
   if (boom) drawBoom(boom);
@@ -1931,8 +2107,29 @@ function render() {
   ctx.font = 'bold 15px "Share Tech Mono", ui-monospace, monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   for (const f of floats) { ctx.globalAlpha = Math.max(0, 1 - f.t / 1.3); ctx.fillStyle = f.c; ctx.fillText(f.text, f.x, f.y); }
   ctx.globalAlpha = 1;
-  if (state === 'play' && phase === 'fly' && R.clamped && !demo && lsY >= TOP + 8 && Math.floor(time * 3) % 2 === 0) {
-    ctx.fillStyle = '#6ef3ff'; ctx.textAlign = 'left'; ctx.fillText('\u25b2\u25bc MOVE TO LAUNCH', R.x - 10, R.y - 24); ctx.textAlign = 'center';
+  if (state === 'play' && phase === 'fly' && R.clamped && !demo && canLaunch() && Math.floor(time * 3) % 2 === 0) {
+    const rh = R.home === 'R';
+    ctx.fillStyle = '#6ef3ff'; ctx.textAlign = rh ? 'right' : 'left'; ctx.fillText('\u25b2\u25bc MOVE TO LAUNCH', R.x + (rh ? 10 : -10), R.y - 24); ctx.textAlign = 'center';
+  }
+  if (state === 'play' && phase === 'dock' && R.seated) {
+    const de = R.dockEnd || 'R', k = clamp((dockT - 0.45) / 0.7, 0, 1), px = endX(de) + FACE[de] * 22, py = endY(de);
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    ctx.strokeStyle = `rgba(255,236,150,${0.9 * (1 - k)})`; ctx.lineWidth = 2.5 * (1 - k) + 0.5;
+    ctx.beginPath(); ctx.ellipse(px, py, 3 + 10 * k, 12 + 40 * k, 0, 0, 6.283); ctx.stroke();
+    ctx.restore();
+  }
+  ctx.restore(); // end of the scrolling world
+  // long route: an arrow at the screen edge points to the station you're flying to while it's out of view
+  if (state === 'play' && WW > W && phase === 'fly') {
+    const te = target(), sx = endX(te) - camX, sy = clamp(endY(te), TOP + 14, BOT - 14);
+    if (sx < -8 || sx > W + 8) {
+      const right = sx > W, ax = right ? W - 16 : 16, pulse = 0.55 + 0.45 * Math.sin(time * 6);
+      ctx.fillStyle = `rgba(125,255,154,${pulse})`; ctx.beginPath();
+      ctx.moveTo(ax + (right ? 9 : -9), sy); ctx.lineTo(ax - (right ? 5 : -5), sy - 9); ctx.lineTo(ax - (right ? 5 : -5), sy + 9); ctx.closePath(); ctx.fill();
+      ctx.font = '12px "Share Tech Mono", monospace'; ctx.textAlign = right ? 'right' : 'left';
+      ctx.fillText('DOCK ' + Math.round(Math.abs(endX(te) - R.x) / 10) * 10, ax + (right ? -10 : 10), sy + (sy < H / 2 ? 18 : -18));
+      ctx.textAlign = 'center';
+    }
   }
   if (banner && state === 'play') {
     const k = banner.t, a = k < 0.3 ? k / 0.3 : k > 2.1 ? Math.max(0, (2.6 - k) / 0.5) : 1;
@@ -1940,15 +2137,10 @@ function render() {
     ctx.fillStyle = '#ffd36e'; ctx.shadowColor = '#ff4fd8'; ctx.shadowBlur = 16;
     ctx.fillText(banner.text, W / 2, H / 2 - 10);
     ctx.shadowBlur = 0; ctx.font = '15px "Share Tech Mono", monospace'; ctx.fillStyle = '#9feeff';
-    ctx.fillText(level === 1 ? 'FRESH FIELD' : 'FASTER \u00b7 FRESH FIELD \u00b7 ' + saturns.length + ' DRIFTING PLANETS', W / 2, H / 2 + 24);
+    ctx.fillText(level === 1 ? 'FRESH FIELD' : (trade() && level === 3 ? 'DOUBLE-LENGTH ROUTE \u00b7 ' : 'FASTER \u00b7 FRESH FIELD \u00b7 ') + saturns.length + ' DRIFTING PLANETS', W / 2, H / 2 + 24);
     ctx.globalAlpha = 1;
   }
   if (state === 'play' && phase === 'dock' && R.seated) {
-    const k = clamp((dockT - 0.45) / 0.7, 0, 1), px = ST_X - 22;
-    ctx.save(); ctx.globalCompositeOperation = 'lighter';
-    ctx.strokeStyle = `rgba(255,236,150,${0.9 * (1 - k)})`; ctx.lineWidth = 2.5 * (1 - k) + 0.5;
-    ctx.beginPath(); ctx.ellipse(px, stY, 3 + 10 * k, 12 + 40 * k, 0, 0, 6.283); ctx.stroke();
-    ctx.restore();
     ctx.fillStyle = '#7dff9a'; ctx.font = 'bold 22px Orbitron, sans-serif';
     ctx.fillText('DOCKED!', W / 2, H / 2);
   }
@@ -1999,7 +2191,7 @@ function pollGamepad() {
   const br = now[1] || now[4] || now[5] || now[6] || now[7];
   if (br && !gpBrake) { gpBrake = true; brakeOn(); } else if (!br && gpBrake) { gpBrake = false; brakeOff(); }
   const startFromPad = () => {
-    A.init(); A.resume(); startGame();
+    A.init(); A.resume(); playFromOverlay();
     setTimeout(() => { if (A.ctx && A.ctx.state !== 'running') toast('Tap the screen once to switch the sound on.'); }, 700);
   };
   if (demo) { if (any) { stopDemo(); startFromPad(); } }
@@ -2028,16 +2220,29 @@ const HELP = `<ul>
 <li>New stars <span style="color:#6ef3ff">blink 5 s</span> (harmless), then turn <span style="color:#ffe9a8">solid</span> and deadly, like planets.</li>
 <li><b style="color:#ff9a9a">MINE</b> (Space) clears nearby stars after 5 s: get clear! 10 docks or 3 min: next level.</li></ul>`
 
+const TRADE_HELP = `<ul>
+<li>Haul cargo <b>both ways</b>: dock, sell for <b>1000</b> credits, turn round and fly back to the other station.</li>
+<li>Stars don't kill you here: each hit costs <b style="color:#ff8a5c">hull</b> and knocks you off course. A mine blast costs half. Planets still do.</li>
+<li>Docking repairs the hull, at a price: more damage, bigger bill. Arrive below 10% and half the fee goes to the yard.</li>
+<li>From level 3 the route is <b>twice as long</b> and the view scrolls.</li></ul>`
+
+const btnTrade = $('btnTrade'), btnMenu = $('btnMenu');
 function showOverlay(kind) {
   ovKind = kind; ov.hidden = false;
+  btnTrade.hidden = kind !== 'title'; btnMenu.hidden = kind !== 'over' && kind !== 'brief';
+  btnMenu.textContent = kind === 'brief' ? '\u25c0 Back' : '\u25c0 Menu';
+  ovTitle.classList.toggle('long', kind === 'brief');
   if (kind === 'title') {
-    ovTitle.textContent = 'STAR DOCK'; ovSub.textContent = 'A SPACE-DISCO REMAKE'; ovBody.innerHTML = HELP; btnPlay.textContent = 'PLAY';
+    ovTitle.textContent = 'STAR DOCK'; ovSub.textContent = 'A SPACE-DISCO REMAKE'; ovBody.innerHTML = HELP; btnPlay.textContent = 'ARCADE';
+  } else if (kind === 'brief') {
+    ovTitle.textContent = 'TRADING ADVENTURE'; ovSub.textContent = 'CARGO RUNS FOR DEX KOVAC'; ovBody.innerHTML = TRADE_HELP; btnPlay.textContent = 'LAUNCH';
   } else if (kind === 'pause') {
     ovTitle.textContent = 'PAUSED'; ovSub.textContent = ''; ovBody.innerHTML = ''; btnPlay.textContent = 'RESUME';
   } else {
     ovTitle.textContent = 'GAME OVER';
-    ovSub.textContent = `SCORE ${pad6(score)} · ${docks} DOCK${docks === 1 ? '' : 'S'}`;
-    ovBody.innerHTML = `<div class="c">Level ${level} \u00b7 ${newBest ? '<b style="color:#ffd36e">★ New best score! ★</b>' : 'Best: ' + pad6(best)}${testMode ? '<br><span style="color:#ffd36e">Test mode: best score not saved</span>' : ''}<div id="statsNote"></div><button class="small" id="btnCopyStats">Copy stats</button></div>`;
+    const tr = mode === 'trade';
+    ovSub.textContent = `${tr ? 'CREDITS' : 'SCORE'} ${pad6(score)} · ${docks} DOCK${docks === 1 ? '' : 'S'}`;
+    ovBody.innerHTML = `<div class="c">${tr ? 'Trading Adventure \u00b7 ' : ''}Level ${level} \u00b7 ${newBest ? '<b style="color:#ffd36e">★ New best score! ★</b>' : 'Best: ' + pad6(tr ? bestTrade : best)}${testMode ? '<br><span style="color:#ffd36e">Test mode: best score not saved</span>' : ''}<div id="statsNote"></div><button class="small" id="btnCopyStats">Copy stats</button></div>`;
     statsNote();
     $('btnCopyStats').addEventListener('click', () => {
       const b = $('btnCopyStats'), t = JSON.stringify(G);
@@ -2056,11 +2261,14 @@ function showOverlay(kind) {
 }
 $('btnDemo').addEventListener('click', () => { A.init(); A.resume(); startDemo(); });
 document.getElementById('stage').addEventListener('pointerdown', () => { idleT = 0; if (demo) stopDemo(); });
-btnPlay.addEventListener('click', () => {
-  A.init(); A.resume();
-  autoFullscreen();
-  if (ovKind === 'pause') resumeGame(); else startGame();
-});
+// the big button: ARCADE on the title, LAUNCH on the trading briefing, PLAY AGAIN (same mode) after a game, RESUME when paused
+function playFromOverlay() {
+  if (ovKind === 'pause') { resumeGame(); return; }
+  startGame(false, 0, ovKind === 'brief' ? 'trade' : ovKind === 'over' ? mode : 'arcade');
+}
+btnPlay.addEventListener('click', () => { A.init(); A.resume(); autoFullscreen(); playFromOverlay(); });
+btnTrade.addEventListener('click', () => { A.init(); A.resume(); idleT = 0; showOverlay('brief'); });
+btnMenu.addEventListener('click', () => { idleT = 0; toMenu(); });
 // on phones, PLAY also switches to full screen (quietly; the browser may refuse, the button still works)
 function autoFullscreen() {
   try {
@@ -2080,7 +2288,7 @@ function syncSliders() {
   tS.value = S.speed; tR.value = S.rate; tSt.value = S.station; tG.checked = S.god;
   tLevel.value = tLevelOv.value = String(S.startLv || 1);
   $('tGrav').value = S.grav; $('oGrav').textContent = '\u00d7' + (+S.grav).toFixed(2);
-  tStep.value = S.step; tLvD.value = S.lvDocks; tLvM.value = S.lvMin;
+  tStep.value = S.step; tLvD.value = S.lvDocks; tLvM.value = S.lvMin; $('tDmg').value = S.dmg; $('oDmg').textContent = S.dmg;
   $('oStep').textContent = '+' + S.step; $('oLvD').textContent = S.lvDocks; $('oLvM').textContent = (+S.lvMin).toFixed(1);
   $('oSpeed').textContent = S.speed; $('oRate').textContent = (+S.rate).toFixed(1); $('oStation').textContent = S.station;
 }
@@ -2089,6 +2297,7 @@ function syncTestUI() {
   btnTestToggle.classList.toggle('on', testMode);
   btnTest.classList.toggle('on', testMode);
   testPanel.hidden = !testMode || !ov.hidden;
+  document.getElementById('app').classList.toggle('tp', !testPanel.hidden);
   $('lvPick').hidden = !testMode || ovKind === 'pause';
 }
 function setTest(on) { testMode = on; if (!on) S.god = false; save(); syncSliders(); syncTestUI(); }
@@ -2102,6 +2311,7 @@ $('tGrav').addEventListener('input', () => { S.grav = +$('tGrav').value; syncSli
 tStep.addEventListener('input', () => { S.step = +tStep.value; syncSliders(); save(); });
 tLvD.addEventListener('input', () => { S.lvDocks = +tLvD.value; syncSliders(); save(); });
 tLvM.addEventListener('input', () => { S.lvMin = +tLvM.value; syncSliders(); save(); });
+$('tDmg').addEventListener('input', () => { S.dmg = +$('tDmg').value; syncSliders(); save(); });
 const tLevel = $('tLevel'), tLevelOv = $('tLevelOv');
 for (const sel of [tLevel, tLevelOv]) sel.addEventListener('change', () => {
   S.startLv = +sel.value; save(); syncSliders();
@@ -2171,7 +2381,7 @@ addEventListener('keydown', e => {
   else if (k === 'ArrowLeft' || k === 'a' || k === 'A' || k === 'Shift') { e.preventDefault(); brakeOn(); }
   else if (k === 'f' || k === 'F') toggleFs();
   else if (k === 'p' || k === 'P' || k === 'Escape') { if (state === 'play') pause(); else if (state === 'paused') { A.resume(); resumeGame(); } }
-  else if (k === 'Enter' && (state === 'title' || state === 'over')) startGame();
+  else if (k === 'Enter' && (state === 'title' || state === 'over')) playFromOverlay();
 });
 addEventListener('keyup', e => {
   const k = e.key;
