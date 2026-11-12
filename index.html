@@ -153,7 +153,7 @@ h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(22px,calc(4
 
 <script>
 'use strict';
-const VERSION = 'v1.23';
+const VERSION = 'v1.24';
 /* ================= constants & settings ================= */
 const W = 800, H = 450, TOP = 36, BOT = H - 10;
 const LS_X = 12, START_X = 50, SAFE_L = 96, SAFE_R = W - 104, ST_X = W - 34;
@@ -1097,7 +1097,7 @@ function clampTo(e, keep) {
 const canLaunch = () => { const y = endY(R.home || 'L'); return trade() ? y >= TOP + 8 && y <= BOT - 8 : R.home === 'R' ? y <= BOT - 8 : y >= TOP + 8; };
 function launch() {
   const f = FACE[R.home || 'L'];
-  R.clamped = false; R.vx = curSpeed() * 0.5; R.drift = f * S.station * 0.9; // keeps a little of the station's drift
+  R.clamped = false; R.vx = curSpeed() * 0.5; R.drift = trade() ? (R.home === 'R' ? stV : lsV) * 0.9 : f * S.station * 0.9; // keeps a little of the station's drift
   A.launchFx(); burst(R.x - f * 14, R.y, 18, ['#fff', '#ffd36e', '#9feeff'], 90, 0.5);
   if (level >= 3) for (let i = 0; i < 6; i++) steam.push({ x: endX(R.home || 'L') + f * 22, y: R.y + (i % 2 ? 8 : -8), vx: -f * (6 + Math.random() * 10), vy: (i % 2 ? 1 : -1) * (8 + Math.random() * 10), r: 2, t: 0, life: 1.1 });
   if (trip) { trip.ly = Math.round(R.y); trip.wait = r1(R.clampT); }
@@ -1207,6 +1207,23 @@ function lostInSpace() {
   banner = { text: 'LOST IN SPACE', t: 0, sub: lives > 0 ? 'SHIP AND CARGO GONE' : 'THAT WAS THE LAST SHIP' };
   tradeSay('lost');
 }
+// Trading Adventure stations. Level 1: 30% slower, and they're only just off screen before they come round again.
+// Level 2 on: they bounce up and down inside the field, always in counter motion (the left one mirrors the right one).
+let stDir = -1, stV = 0, lsV = 0;
+const ST_LO = TOP + 40, ST_HI = BOT - 36;
+function moveStationsTrade(dt) {
+  if (level <= 1) {
+    const sp = S.station * 0.7;
+    stY -= sp * dt; if (stY < -12) stY = H + 40;
+    lsY += sp * dt; if (lsY > H + 40) lsY = -12;
+    stV = -sp; lsV = sp;
+  } else {
+    stY = clamp(stY + stDir * S.station * dt, ST_LO, ST_HI);
+    if (stY <= ST_LO) stDir = 1; else if (stY >= ST_HI) stDir = -1;
+    lsY = ST_LO + ST_HI - stY;
+    stV = stDir * S.station; lsV = -stV;
+  }
+}
 function mineHit(m) {
   hull = Math.max(0, hull - 50);
   const side = R.y < m.y ? -1 : 1;
@@ -1274,8 +1291,11 @@ function updateMineBtn() { mineCount.textContent = mineStock; btnMine.classList.
 function update(dt, rdt = dt) {
   time += dt;
   if (state === 'paused') return;
-  stY -= S.station * dt; if (stY < -48) stY = H + 48;
-  lsY += S.station * dt; if (lsY > H + 48) lsY = -48;
+  if (trade() && state !== 'title') moveStationsTrade(dt);
+  else {
+    stY -= S.station * dt; if (stY < -48) stY = H + 48;
+    lsY += S.station * dt; if (lsY > H + 48) lsY = -48;
+  }
   for (const f of far) { f.x -= f.sp * dt; if (f.x < 0) f.x += W; }
   // camera: on the long trading route the view follows the ship, looking ahead
   const camT = clamp(R.x - ((R.fx === undefined ? 1 : R.fx) >= 0 ? 0.36 : 0.64) * W, 0, WW - W);
